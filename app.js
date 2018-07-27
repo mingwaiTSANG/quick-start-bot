@@ -16,7 +16,7 @@
 
 'use strict';
 
-var PAGE_ACCESS_TOKEN = EAAC240jrjmoBAJHMNrLCXUzNZCZB8OYuUc00WtxhHAOoqJ9YRsXoM7ySqSuLY0sd7Pj6ymaiz4IkgQWSLY8D7LrKznPchsBqFZArrBtpEKyW7XUI2WrrlMIwQGHZBP1w1ZAZCX9ewWIXJNQSzZC8Jmag7AQZAsG209fSHoAVs6rRJAZDZD;
+const PAGE_ACCESS_TOKEN = process.env.PAGE_ACCESS_TOKEN;
 // Imports dependencies and set up http server
 const 
   request = require('request'),
@@ -99,22 +99,41 @@ function handleMessage(sender_psid, received_message) {
 
   let response;
 
-  // Check if the message contains text
-  if (received_message.text) {    
-
-    // Create the payload for a basic text message
+  // Checks if the message contains text
+  if (received_message.text) {
+    
+    // Creates the payload for a basic text message, which
+    // will be added to the body of our request to the Send API
     response = {
-      "text": `You sent the message: "${received_message.text}". Now send me an image!`
+      "text": `You sent the message: "${received_message.text}". Now send me an attachment!`
     }
-  }  
+
+  } else if (received_message.attachments) {
+  
+    // Gets the URL of the message attachment
+    let attachment_url = received_message.attachments[0].payload.url;
+  
+  } 
   
   // Sends the response message
-  callSendAPI(sender_psid, response);    
+  callSendAPI(sender_psid, response);     
 }
 
 // Handles messaging_postbacks events
 function handlePostback(sender_psid, received_postback) {
+	let response;
+  
+	// Get the payload for the postback
+	let payload = received_postback.payload;
 
+	// Set the response based on the postback payload
+	if (payload === 'yes') {
+		response = { "text": "Thanks!" }
+	} else if (payload === 'no') {
+		response = { "text": "Oops, try sending another image." }
+	}
+	// Send the message to acknowledge the postback
+	callSendAPI(sender_psid, response);
 }
 
 // Sends response messages via the Send API
@@ -140,4 +159,8 @@ function callSendAPI(sender_psid, response) {
       console.error("Unable to send message:" + err);
     }
   }); 
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> 7e9e6afab8ad68f6e73b2432a3bfa3d1314d235c
